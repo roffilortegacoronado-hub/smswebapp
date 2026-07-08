@@ -10,7 +10,7 @@ pipeline {
         }
         stage('Build') {
             steps {
-                sh 'dotnet build'
+                bat 'dotnet build'
             }
         }
         stage('SonarQube Analysis') {
@@ -19,9 +19,9 @@ pipeline {
             }
             steps {
                 withSonarQubeEnv('SonarQubeServer') {
-                    sh 'dotnet sonarscanner begin /k:"smswebapp" /d:sonar.login=$SONARQUBE'
-                    sh 'dotnet build'
-                    sh 'dotnet sonarscanner end /d:sonar.login=$SONARQUBE'
+                    bat 'SonarScanner.MSBuild.exe begin /k:"smswebapp" /d:sonar.login=%SONARQUBE%'
+                    bat 'dotnet build'
+                    bat 'SonarScanner.MSBuild.exe end /d:sonar.login=%SONARQUBE%'
                 }
             }
         }
