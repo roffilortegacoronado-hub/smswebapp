@@ -1,52 +1,29 @@
 pipeline {
     agent any
-
-    environment {
-        DOTNET_CLI_HOME = "C:\\Program Files\\dotnet"
-    }
-
     stages {
         stage('Checkout') {
             steps {
-                checkout scm
+                git branch: 'main',
+                    url: 'https://github.com/roffilortegacoronado-hub/smswebapp.git',
+                    credentialsId: 'github-Token'
             }
         }
-
         stage('Build') {
             steps {
-                script {
-                    // Restoring dependencies
-                    //bat "cd ${DOTNET_CLI_HOME} && dotnet restore"
-                    bat "dotnet restore"
-
-                    // Building the application
-                    bat "dotnet build --configuration Release"
-                }
+                sh 'dotnet build'
             }
         }
-
-        stage('Test') {
+        stage('SonarQube Analysis') {
+            environment {
+                SONARQUBE = credentials('sonarqube-token')
+            }
             steps {
-                script {
-                    // Running tests
-                    bat "dotnet test --no-restore --configuration Release"
+                withSonarQubeEnv('SonarQubeServer') {
+                    sh 'dotnet sonarscanner begin /k:"smswebapp" /d:sonar.login=$SONARQUBE'
+                    sh 'dotnet build'
+                    sh 'dotnet sonarscanner end /d:sonar.login=$SONARQUBE'
                 }
             }
-        }
-
-        stage('Publish') {
-            steps {
-                script {
-                    // Publishing the application
-                    bat "dotnet publish --no-restore --configuration Release --output .\\publish"
-                }
-            }
-        }
-    }
-
-    post {
-        success {
-            echo 'Build, test, and publish successful!'
         }
     }
 }
