@@ -4,7 +4,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 git branch: 'main',
-                    url: 'https://github.com/roffilortegacoronado-hub/smswebapp.git',
+                    url: 'https://github.com/roffilortegacoronado-hub/smswebapp/tree/main',
                     credentialsId: 'github-Token'
             }
         }
